@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8787';
+const API_IS_HOSTED = /^https?:\/\/[^/]*onrender\.com/i.test(API_BASE);
 const sampleRows = [
   {
     id: 'seed-1',
@@ -56,6 +57,8 @@ export function App() {
   const [sendingFeedback, setSendingFeedback] = useState(false);
 
   const platform = useMemo(() => detectPlatform(url), [url]);
+  const browserCookiesAvailable = health?.browserCookiesAvailable ?? !API_IS_HOSTED;
+  const effectiveCookiesBrowser = browserCookiesAvailable ? cookiesBrowser : 'none';
   const activity = useMemo(() => {
     if (downloadStage) return downloadStage;
     if (loadingMeta) {
@@ -86,6 +89,13 @@ export function App() {
       setCookiesProfile('');
     }
   }, [browserProfiles, cookiesBrowser, cookiesProfile]);
+
+  useEffect(() => {
+    if (!browserCookiesAvailable && cookiesBrowser !== 'none') {
+      setCookiesBrowser('none');
+      setCookiesProfile('');
+    }
+  }, [browserCookiesAvailable, cookiesBrowser]);
 
   async function refreshHealth() {
     setHealthLoading(true);
@@ -131,7 +141,13 @@ export function App() {
       const response = await fetch(`${API_BASE}/api/metadata`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, cookiesBrowser, cookiesProfile, cookiesText, poToken }),
+        body: JSON.stringify({
+          url,
+          cookiesBrowser: effectiveCookiesBrowser,
+          cookiesProfile,
+          cookiesText,
+          poToken,
+        }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message);
@@ -170,7 +186,7 @@ export function App() {
       const request = {
         url,
         quality,
-        cookiesBrowser,
+        cookiesBrowser: effectiveCookiesBrowser,
         cookiesProfile,
         cookiesText,
         poToken,
@@ -352,7 +368,11 @@ export function App() {
             <div className="cookies-row">
               <span>
                 Browser cookies
-                <small>Use when TikTok, Facebook, or YouTube blocks anonymous requests</small>
+                <small>
+                  {browserCookiesAvailable
+                    ? 'Use only when the API runs on the same computer as your browser'
+                    : 'Unavailable on hosted Render API; paste YouTube cookies.txt below'}
+                </small>
               </span>
               <div className="cookies-controls">
                 <label htmlFor="cookies-browser" className="sr-only">
@@ -361,6 +381,7 @@ export function App() {
                 <select
                   id="cookies-browser"
                   value={cookiesBrowser}
+                  disabled={!browserCookiesAvailable}
                   onChange={(event) => setCookiesBrowser(event.target.value)}
                 >
                   <option value="none">Off</option>
