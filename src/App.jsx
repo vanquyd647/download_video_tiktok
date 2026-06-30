@@ -38,6 +38,7 @@ export function App() {
   const [quality, setQuality] = useState('best');
   const [cookiesBrowser, setCookiesBrowser] = useState('none');
   const [cookiesProfile, setCookiesProfile] = useState('');
+  const [cookiesText, setCookiesText] = useState('');
   const [browserProfiles, setBrowserProfiles] = useState({});
   const [health, setHealth] = useState(null);
   const [metadata, setMetadata] = useState(null);
@@ -129,7 +130,7 @@ export function App() {
       const response = await fetch(`${API_BASE}/api/metadata`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, cookiesBrowser, cookiesProfile }),
+        body: JSON.stringify({ url, cookiesBrowser, cookiesProfile, cookiesText }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message);
@@ -170,6 +171,7 @@ export function App() {
         quality,
         cookiesBrowser,
         cookiesProfile,
+        cookiesText,
         title: metadata?.title,
       };
       setDownloadStage({
@@ -388,6 +390,23 @@ export function App() {
               </div>
             </div>
 
+            <div className="cookies-text-box">
+              <label htmlFor="cookies-text">
+                YouTube cookies.txt
+                <small>Paste exported Netscape cookies when Render gets blocked by YouTube</small>
+              </label>
+              <textarea
+                id="cookies-text"
+                autoCapitalize="off"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                onChange={(event) => setCookiesText(event.target.value)}
+                placeholder="# Netscape HTTP Cookie File&#10;.youtube.com&#9;TRUE&#9;/&#9;TRUE..."
+                value={cookiesText}
+              />
+            </div>
+
             {metadata && (
               <article className="metadata">
                 {metadata.thumbnail && <img src={metadata.thumbnail} alt="" />}
@@ -567,11 +586,11 @@ function buildDownloadUrl({ url, quality, cookiesBrowser, cookiesProfile, title 
   return `${API_BASE}/api/download-local?${params.toString()}`;
 }
 
-async function resolveFastDownload({ url, quality, cookiesBrowser, cookiesProfile, title }) {
+async function resolveFastDownload({ url, quality, cookiesBrowser, cookiesProfile, cookiesText, title }) {
   const response = await fetch(`${API_BASE}/api/download-url`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url, quality, cookiesBrowser, cookiesProfile, title }),
+    body: JSON.stringify({ url, quality, cookiesBrowser, cookiesProfile, cookiesText, title }),
   });
   const payload = await response.json();
   if (!response.ok) throw new Error(payload.message);

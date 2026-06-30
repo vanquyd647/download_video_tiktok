@@ -11,4 +11,7 @@ npm run dev
 ```
 
 The backend API defaults to `http://localhost:8787`. Change `VITE_API_BASE` in `.env.local` if your backend runs elsewhere.
-# download_video_tiktok
+
+If YouTube blocks the hosted backend, paste a Netscape `cookies.txt` export into
+the YouTube cookies field before inspecting the link. Export only cookies for
+YouTube/Google from a browser account that has permission to view the video.
