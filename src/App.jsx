@@ -25,8 +25,8 @@ const sampleRows = [
   },
   {
     id: 'seed-2',
-    platform: 'Facebook',
-    title: 'Community event clip',
+    platform: 'YouTube',
+    title: 'Channel tutorial clip',
     status: 'idle',
     progress: 0,
     meta: 'Waiting for link',
@@ -299,7 +299,7 @@ export function App() {
 
             <h1 id="download-heading">Download an authorized video at source quality.</h1>
             <p className="lede">
-              Paste a TikTok or Facebook link. LinkVault asks the platform extractor for the best
+              Paste a TikTok, Facebook, or YouTube link. LinkVault asks the platform extractor for the best
               available stream and prefers a clean source when one is exposed.
             </p>
 
@@ -311,7 +311,7 @@ export function App() {
                   id="video-url"
                   value={url}
                   onChange={(event) => setUrl(event.target.value)}
-                  placeholder="https://www.tiktok.com/@creator/video/..."
+                  placeholder="https://www.youtube.com/watch?v=..."
                   autoComplete="off"
                 />
                 <span className={platform ? 'platform good' : 'platform'}>{platform || 'Detect'}</span>
@@ -348,7 +348,7 @@ export function App() {
             <div className="cookies-row">
               <span>
                 Browser cookies
-                <small>Use when TikTok or Facebook blocks anonymous requests</small>
+                <small>Use when TikTok, Facebook, or YouTube blocks anonymous requests</small>
               </span>
               <div className="cookies-controls">
                 <label htmlFor="cookies-browser" className="sr-only">
@@ -590,6 +590,7 @@ function detectPlatform(value) {
     const host = new URL(value).hostname;
     if (/tiktok\.com$/i.test(host)) return 'TikTok';
     if (/facebook\.com$/i.test(host) || /fb\.watch$/i.test(host)) return 'Facebook';
+    if (/youtube\.com$/i.test(host) || /youtu\.be$/i.test(host)) return 'YouTube';
   } catch {
     return '';
   }
@@ -598,7 +599,7 @@ function detectPlatform(value) {
 
 function getUrlError(value) {
   if (!value || typeof value !== 'string') {
-    return 'Paste a TikTok or Facebook video link first.';
+    return 'Paste a TikTok, Facebook, or YouTube video link first.';
   }
 
   let parsed;
@@ -609,7 +610,7 @@ function getUrlError(value) {
   }
 
   if (!['http:', 'https:'].includes(parsed.protocol) || !detectPlatform(parsed.href)) {
-    return 'Only TikTok and Facebook video links are supported.';
+    return 'Only TikTok, Facebook, and YouTube video links are supported.';
   }
 
   return '';

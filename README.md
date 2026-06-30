@@ -1,6 +1,6 @@
 # download_video_tiktok
 
-Frontend React/Vite for LinkVault TikTok downloader.
+Frontend React/Vite for LinkVault social video downloader. Supports authorized TikTok, Facebook, and YouTube downloads.
 
 ## Run
 
