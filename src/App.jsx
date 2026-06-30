@@ -7,7 +7,9 @@ import {
   Gauge,
   Link2,
   Loader2,
+  MessageSquare,
   RefreshCw,
+  Send,
   ShieldCheck,
 } from 'lucide-react';
 
@@ -45,6 +47,11 @@ export function App() {
   const [loadingMeta, setLoadingMeta] = useState(false);
   const [starting, setStarting] = useState(false);
   const [downloadStage, setDownloadStage] = useState(null);
+  const [feedbackKind, setFeedbackKind] = useState('error');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackContact, setFeedbackContact] = useState('');
+  const [feedbackStatus, setFeedbackStatus] = useState(null);
+  const [sendingFeedback, setSendingFeedback] = useState(false);
 
   const platform = useMemo(() => detectPlatform(url), [url]);
   const activity = useMemo(() => {
@@ -214,6 +221,50 @@ export function App() {
     }
   }
 
+  async function submitFeedback(event) {
+    event.preventDefault();
+    setFeedbackStatus(null);
+
+    if (feedbackMessage.trim().length < 8) {
+      setFeedbackStatus({
+        type: 'error',
+        message: 'Describe the issue or improvement in a little more detail.',
+      });
+      return;
+    }
+
+    setSendingFeedback(true);
+
+    try {
+      const response = await fetch(`${API_BASE}/api/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kind: feedbackKind,
+          message: feedbackMessage,
+          contact: feedbackContact,
+          pageUrl: window.location.href,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message);
+
+      setFeedbackMessage('');
+      setFeedbackContact('');
+      setFeedbackStatus({
+        type: 'success',
+        message: 'Feedback sent. Thank you.',
+      });
+    } catch (error) {
+      setFeedbackStatus({
+        type: 'error',
+        message: error.message,
+      });
+    } finally {
+      setSendingFeedback(false);
+    }
+  }
+
   const visibleRows = jobs.length ? jobs : sampleRows;
 
   return (
@@ -374,6 +425,58 @@ export function App() {
                 download. The app does not remove or alter watermarks.
               </p>
             </div>
+
+            <form className="feedback-box" onSubmit={submitFeedback}>
+              <div className="feedback-heading">
+                <MessageSquare size={18} />
+                <span>Feedback</span>
+              </div>
+              <div className="feedback-kind" aria-label="Feedback type">
+                <button
+                  className={feedbackKind === 'error' ? 'active' : ''}
+                  onClick={() => setFeedbackKind('error')}
+                  type="button"
+                >
+                  Error
+                </button>
+                <button
+                  className={feedbackKind === 'improvement' ? 'active' : ''}
+                  onClick={() => setFeedbackKind('improvement')}
+                  type="button"
+                >
+                  Improve
+                </button>
+              </div>
+              <label className="sr-only" htmlFor="feedback-message">
+                Feedback message
+              </label>
+              <textarea
+                id="feedback-message"
+                maxLength={3000}
+                onChange={(event) => setFeedbackMessage(event.target.value)}
+                placeholder="Tell us what went wrong or what should be improved..."
+                value={feedbackMessage}
+              />
+              <label className="sr-only" htmlFor="feedback-contact">
+                Contact info
+              </label>
+              <input
+                id="feedback-contact"
+                maxLength={160}
+                onChange={(event) => setFeedbackContact(event.target.value)}
+                placeholder="Your email or contact (optional)"
+                value={feedbackContact}
+              />
+              <button className="primary-button compact" disabled={sendingFeedback} type="submit">
+                {sendingFeedback ? <Loader2 className="spin" size={17} /> : <Send size={17} />}
+                {sendingFeedback ? 'Sending feedback' : 'Send feedback'}
+              </button>
+              {feedbackStatus && (
+                <div className={feedbackStatus.type === 'success' ? 'feedback-note success' : 'feedback-note'}>
+                  {feedbackStatus.message}
+                </div>
+              )}
+            </form>
           </section>
 
           <section className="queue-panel" aria-labelledby="queue-heading">

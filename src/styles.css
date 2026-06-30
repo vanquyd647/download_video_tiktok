@@ -28,7 +28,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -464,6 +465,91 @@ h1 {
 .permission svg {
   color: var(--teal);
   flex: 0 0 auto;
+}
+
+.feedback-box {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 14px;
+}
+
+.feedback-heading {
+  align-items: center;
+  color: var(--text);
+  display: flex;
+  font-size: 14px;
+  font-weight: 780;
+  gap: 9px;
+}
+
+.feedback-heading svg {
+  color: var(--teal);
+}
+
+.feedback-kind {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.feedback-kind button {
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 760;
+  height: 36px;
+}
+
+.feedback-kind button.active {
+  background: #effaf7;
+  border-color: rgba(0, 143, 122, 0.36);
+  color: var(--teal-dark);
+}
+
+.feedback-box textarea,
+.feedback-box input {
+  background: #ffffff;
+  border: 1px solid #cbd8d4;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  outline: 0;
+  width: 100%;
+}
+
+.feedback-box textarea {
+  line-height: 1.45;
+  min-height: 96px;
+  padding: 11px 12px;
+  resize: vertical;
+}
+
+.feedback-box input {
+  min-height: 40px;
+  padding: 0 12px;
+}
+
+.feedback-box textarea:focus,
+.feedback-box input:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 4px rgba(0, 143, 122, 0.1);
+}
+
+.feedback-note {
+  color: #8d3026;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.feedback-note.success {
+  color: var(--teal-dark);
 }
 
 .panel-heading {
