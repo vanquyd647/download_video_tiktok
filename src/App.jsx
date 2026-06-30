@@ -136,8 +136,8 @@ export function App() {
           title: metadata?.title || 'Browser download',
           status: 'complete',
           progress: 100,
-          message: fastDownload?.mode === 'direct'
-            ? 'Opened direct source download'
+          message: fastDownload?.mode === 'direct-proxy'
+            ? 'Started accelerated backend download'
             : 'Sent through fallback server stream',
         },
         ...current,
