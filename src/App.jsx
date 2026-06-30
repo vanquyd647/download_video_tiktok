@@ -430,7 +430,7 @@ export function App() {
               />
               <label htmlFor="po-token">
                 YouTube PO token
-                <small>Optional GVS token; raw token or mweb.gvs+TOKEN are accepted</small>
+                <small>Optional fallback; backend tries automatic GVS tokens first</small>
               </label>
               <input
                 id="po-token"

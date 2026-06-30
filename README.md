@@ -16,5 +16,6 @@ If YouTube blocks the hosted backend, paste a Netscape `cookies.txt` export into
 the YouTube cookies field before inspecting the link. Export only cookies for
 YouTube/Google from a browser account that has permission to view the video. If
 fresh cookies still fail, paste a matching YouTube GVS PO token from the same
-browser session into the optional PO token field. Raw tokens and full values
-like `mweb.gvs+TOKEN` are accepted.
+browser session into the optional PO token field. The backend tries automatic
+GVS token generation first; raw tokens and full values like `mweb.gvs+TOKEN`
+are accepted as a manual fallback.
