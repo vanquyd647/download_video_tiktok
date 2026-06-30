@@ -108,21 +108,23 @@ export function App() {
     }
   }
 
-  function startDownloadJob() {
+  async function startDownloadJob() {
     setNotice('');
     setStarting(true);
 
     try {
-      const downloadUrl = buildDownloadUrl({
+      const request = {
         url,
         quality,
         cookiesBrowser,
         cookiesProfile,
         title: metadata?.title,
-      });
+      };
+      const fastDownload = await resolveFastDownload(request);
+      const downloadUrl = fastDownload?.url || buildDownloadUrl(request);
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = '';
+      link.download = fastDownload?.fileName || '';
       document.body.append(link);
       link.click();
       link.remove();
@@ -134,7 +136,9 @@ export function App() {
           title: metadata?.title || 'Browser download',
           status: 'complete',
           progress: 100,
-          message: 'Sent to your browser downloads',
+          message: fastDownload?.mode === 'direct'
+            ? 'Opened direct source download'
+            : 'Sent through fallback server stream',
         },
         ...current,
       ]);
@@ -367,6 +371,20 @@ function buildDownloadUrl({ url, quality, cookiesBrowser, cookiesProfile, title 
     title: title || 'video',
   });
   return `${API_BASE}/api/download-local?${params.toString()}`;
+}
+
+async function resolveFastDownload({ url, quality, cookiesBrowser, cookiesProfile, title }) {
+  const response = await fetch(`${API_BASE}/api/download-url`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url, quality, cookiesBrowser, cookiesProfile, title }),
+  });
+  const payload = await response.json();
+  if (!response.ok) throw new Error(payload.message);
+  if (payload.ok && payload.url) {
+    return payload;
+  }
+  return null;
 }
 
 function StatusDot({ ok }) {
