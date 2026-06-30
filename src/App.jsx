@@ -41,10 +41,30 @@ export function App() {
   const [metadata, setMetadata] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [notice, setNotice] = useState('');
+  const [healthLoading, setHealthLoading] = useState(false);
   const [loadingMeta, setLoadingMeta] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [downloadStage, setDownloadStage] = useState(null);
 
   const platform = useMemo(() => detectPlatform(url), [url]);
+  const activity = useMemo(() => {
+    if (downloadStage) return downloadStage;
+    if (loadingMeta) {
+      return {
+        title: 'Inspecting link',
+        detail: 'Reading video metadata and available formats',
+        progress: 48,
+      };
+    }
+    if (healthLoading) {
+      return {
+        title: 'Checking engine',
+        detail: 'Confirming API and yt-dlp runtime are ready',
+        progress: 34,
+      };
+    }
+    return null;
+  }, [downloadStage, healthLoading, loadingMeta]);
 
   useEffect(() => {
     refreshHealth();
@@ -59,6 +79,7 @@ export function App() {
   }, [browserProfiles, cookiesBrowser, cookiesProfile]);
 
   async function refreshHealth() {
+    setHealthLoading(true);
     try {
       const response = await fetch(`${API_BASE}/api/health`);
       setHealth(await response.json());
@@ -69,6 +90,8 @@ export function App() {
           message: 'API is offline. Start it with npm run dev:server.',
         },
       });
+    } finally {
+      setHealthLoading(false);
     }
   }
 
@@ -86,6 +109,13 @@ export function App() {
     event?.preventDefault();
     setNotice('');
     setMetadata(null);
+
+    const urlError = getUrlError(url);
+    if (urlError) {
+      setNotice(urlError);
+      return;
+    }
+
     setLoadingMeta(true);
 
     try {
@@ -108,9 +138,24 @@ export function App() {
     }
   }
 
+  function updateJob(id, patch) {
+    setJobs((current) => current.map((job) => (job.id === id ? { ...job, ...patch } : job)));
+  }
+
   async function startDownloadJob() {
     setNotice('');
     setStarting(true);
+    const jobId = `${Date.now()}`;
+    const jobTitle = metadata?.title || 'Browser download';
+    const baseJob = {
+      id: jobId,
+      platform: platform || metadata?.platform || 'Video',
+      title: jobTitle,
+      status: 'running',
+      progress: 18,
+      message: 'Preparing download request',
+    };
+    setJobs((current) => [baseJob, ...current]);
 
     try {
       const request = {
@@ -120,7 +165,27 @@ export function App() {
         cookiesProfile,
         title: metadata?.title,
       };
+      setDownloadStage({
+        title: 'Preparing download',
+        detail: 'Resolving secure media URL through the backend',
+        progress: 35,
+      });
+      updateJob(jobId, {
+        progress: 35,
+        message: 'Resolving secure media URL',
+      });
       const fastDownload = await resolveFastDownload(request);
+      setDownloadStage({
+        title: 'Opening download',
+        detail: 'Starting the browser download with protected media headers',
+        progress: 78,
+      });
+      updateJob(jobId, {
+        progress: 78,
+        message: fastDownload?.mode === 'direct-proxy'
+          ? 'Starting accelerated backend download'
+          : 'Starting fallback server stream',
+      });
       const downloadUrl = fastDownload?.url || buildDownloadUrl(request);
       const link = document.createElement('a');
       link.href = downloadUrl;
@@ -129,23 +194,23 @@ export function App() {
       link.click();
       link.remove();
 
-      setJobs((current) => [
-        {
-          id: `${Date.now()}`,
-          platform: platform || metadata?.platform || 'Video',
-          title: metadata?.title || 'Browser download',
-          status: 'complete',
-          progress: 100,
-          message: fastDownload?.mode === 'direct-proxy'
-            ? 'Started accelerated backend download'
-            : 'Sent through fallback server stream',
-        },
-        ...current,
-      ]);
+      updateJob(jobId, {
+        status: 'complete',
+        progress: 100,
+        message: fastDownload?.mode === 'direct-proxy'
+          ? 'Started accelerated backend download'
+          : 'Sent through fallback server stream',
+      });
     } catch (error) {
+      updateJob(jobId, {
+        status: 'error',
+        progress: 100,
+        message: error.message,
+      });
       setNotice(error.message);
     } finally {
       setStarting(false);
+      setDownloadStage(null);
     }
   }
 
@@ -164,9 +229,9 @@ export function App() {
               <small>Local social video saver</small>
             </div>
           </div>
-          <button className="ghost-button" onClick={refreshHealth} type="button">
-            <RefreshCw size={16} />
-            Check engine
+          <button className="ghost-button" disabled={healthLoading} onClick={refreshHealth} type="button">
+            {healthLoading ? <Loader2 className="spin" size={16} /> : <RefreshCw size={16} />}
+            {healthLoading ? 'Checking...' : 'Check engine'}
           </button>
         </header>
 
@@ -202,9 +267,11 @@ export function App() {
               </div>
               <button className="primary-button" disabled={loadingMeta || !url} type="submit">
                 {loadingMeta ? <Loader2 className="spin" size={18} /> : <Gauge size={18} />}
-                Inspect link
+                {loadingMeta ? 'Inspecting link' : 'Inspect link'}
               </button>
             </form>
+
+            {activity && <LoadingStatus activity={activity} />}
 
             <div className="quality-group" aria-label="Download quality">
               <QualityOption
@@ -287,7 +354,7 @@ export function App() {
                     type="button"
                   >
                     {starting ? <Loader2 className="spin" size={17} /> : <Download size={17} />}
-                    Save to computer
+                    {starting ? 'Preparing download' : 'Save to computer'}
                   </button>
                 </div>
               </article>
@@ -339,14 +406,38 @@ function QualityOption({ active, title, detail, onClick }) {
   );
 }
 
+function LoadingStatus({ activity }) {
+  return (
+    <div className="loading-status" aria-live="polite" role="status">
+      <div>
+        <Loader2 className="spin" size={17} />
+        <span>{activity.title}</span>
+      </div>
+      <p>{activity.detail}</p>
+      <div className="progress-track active">
+        <span style={{ width: `${Math.max(8, Math.min(96, activity.progress || 25))}%` }} />
+      </div>
+    </div>
+  );
+}
+
 function JobRow({ job }) {
   const complete = job.status === 'complete' || job.status === 'ready';
   const failed = job.status === 'error';
+  const running = !complete && !failed;
 
   return (
-    <article className="job-row">
+    <article className={running ? 'job-row running' : 'job-row'}>
       <div className="file-icon">
-        {complete ? <CheckCircle2 size={19} /> : failed ? <AlertCircle size={19} /> : <FileVideo size={19} />}
+        {complete ? (
+          <CheckCircle2 size={19} />
+        ) : failed ? (
+          <AlertCircle size={19} />
+        ) : running ? (
+          <Loader2 className="spin" size={19} />
+        ) : (
+          <FileVideo size={19} />
+        )}
       </div>
       <div className="job-main">
         <div className="job-title-line">
@@ -399,6 +490,25 @@ function detectPlatform(value) {
   } catch {
     return '';
   }
+  return '';
+}
+
+function getUrlError(value) {
+  if (!value || typeof value !== 'string') {
+    return 'Paste a TikTok or Facebook video link first.';
+  }
+
+  let parsed;
+  try {
+    parsed = new URL(value.trim());
+  } catch {
+    return 'That does not look like a valid URL.';
+  }
+
+  if (!['http:', 'https:'].includes(parsed.protocol) || !detectPlatform(parsed.href)) {
+    return 'Only TikTok and Facebook video links are supported.';
+  }
+
   return '';
 }
 

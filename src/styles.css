@@ -404,6 +404,35 @@ h1 {
   margin-top: 8px;
 }
 
+.loading-status {
+  background: #f7fbfa;
+  border: 1px solid rgba(0, 143, 122, 0.2);
+  border-radius: 8px;
+  color: var(--muted);
+  margin-top: 16px;
+  padding: 13px 14px;
+}
+
+.loading-status > div:first-child {
+  align-items: center;
+  color: var(--text);
+  display: flex;
+  font-size: 14px;
+  font-weight: 780;
+  gap: 9px;
+}
+
+.loading-status > div:first-child svg {
+  color: var(--teal);
+  flex: 0 0 auto;
+}
+
+.loading-status p {
+  font-size: 12px;
+  line-height: 1.35;
+  margin-top: 5px;
+}
+
 .notice,
 .permission {
   align-items: flex-start;
@@ -479,6 +508,11 @@ h1 {
   padding: 14px;
 }
 
+.job-row.running {
+  background: #f7fbfa;
+  border-color: rgba(0, 143, 122, 0.24);
+}
+
 .file-icon {
   align-items: center;
   background: #ffffff;
@@ -542,6 +576,11 @@ h1 {
   display: block;
   height: 100%;
   transition: width 0.25s ease;
+}
+
+.progress-track.active span {
+  background: linear-gradient(90deg, var(--teal), #2abca5);
+  min-width: 28px;
 }
 
 .download-link {
