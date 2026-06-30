@@ -39,6 +39,7 @@ export function App() {
   const [cookiesBrowser, setCookiesBrowser] = useState('none');
   const [cookiesProfile, setCookiesProfile] = useState('');
   const [cookiesText, setCookiesText] = useState('');
+  const [poToken, setPoToken] = useState('');
   const [browserProfiles, setBrowserProfiles] = useState({});
   const [health, setHealth] = useState(null);
   const [metadata, setMetadata] = useState(null);
@@ -130,7 +131,7 @@ export function App() {
       const response = await fetch(`${API_BASE}/api/metadata`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, cookiesBrowser, cookiesProfile, cookiesText }),
+        body: JSON.stringify({ url, cookiesBrowser, cookiesProfile, cookiesText, poToken }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.message);
@@ -172,6 +173,7 @@ export function App() {
         cookiesBrowser,
         cookiesProfile,
         cookiesText,
+        poToken,
         title: metadata?.title,
       };
       setDownloadStage({
@@ -405,6 +407,21 @@ export function App() {
                 placeholder="# Netscape HTTP Cookie File&#10;.youtube.com&#9;TRUE&#9;/&#9;TRUE..."
                 value={cookiesText}
               />
+              <label htmlFor="po-token">
+                YouTube PO token
+                <small>Optional fallback when fresh cookies are still blocked</small>
+              </label>
+              <input
+                id="po-token"
+                autoCapitalize="off"
+                autoComplete="off"
+                autoCorrect="off"
+                onChange={(event) => setPoToken(event.target.value)}
+                placeholder="Paste PO token from the same browser session"
+                spellCheck="false"
+                type="password"
+                value={poToken}
+              />
             </div>
 
             {metadata && (
@@ -586,11 +603,11 @@ function buildDownloadUrl({ url, quality, cookiesBrowser, cookiesProfile, title 
   return `${API_BASE}/api/download-local?${params.toString()}`;
 }
 
-async function resolveFastDownload({ url, quality, cookiesBrowser, cookiesProfile, cookiesText, title }) {
+async function resolveFastDownload({ url, quality, cookiesBrowser, cookiesProfile, cookiesText, poToken, title }) {
   const response = await fetch(`${API_BASE}/api/download-url`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url, quality, cookiesBrowser, cookiesProfile, cookiesText, title }),
+    body: JSON.stringify({ url, quality, cookiesBrowser, cookiesProfile, cookiesText, poToken, title }),
   });
   const payload = await response.json();
   if (!response.ok) throw new Error(payload.message);
