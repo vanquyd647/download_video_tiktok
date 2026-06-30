@@ -430,7 +430,7 @@ export function App() {
               />
               <label htmlFor="po-token">
                 YouTube PO token
-                <small>Optional fallback when fresh cookies are still blocked</small>
+                <small>Optional GVS token; raw token or mweb.gvs+TOKEN are accepted</small>
               </label>
               <input
                 id="po-token"
@@ -438,7 +438,7 @@ export function App() {
                 autoComplete="off"
                 autoCorrect="off"
                 onChange={(event) => setPoToken(event.target.value)}
-                placeholder="Paste PO token from the same browser session"
+                placeholder="Paste raw token or mweb.gvs+TOKEN"
                 spellCheck="false"
                 type="password"
                 value={poToken}

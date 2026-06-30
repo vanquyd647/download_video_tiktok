@@ -15,5 +15,6 @@ The backend API defaults to `http://localhost:8787`. Change `VITE_API_BASE` in `
 If YouTube blocks the hosted backend, paste a Netscape `cookies.txt` export into
 the YouTube cookies field before inspecting the link. Export only cookies for
 YouTube/Google from a browser account that has permission to view the video. If
-fresh cookies still fail, paste a matching YouTube PO token from the same browser
-session into the optional PO token field.
+fresh cookies still fail, paste a matching YouTube GVS PO token from the same
+browser session into the optional PO token field. Raw tokens and full values
+like `mweb.gvs+TOKEN` are accepted.
