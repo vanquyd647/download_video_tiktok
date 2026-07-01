@@ -329,6 +329,33 @@ h1 {
   padding: 13px 14px;
 }
 
+.server-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.status-pill {
+  align-items: center;
+  background: #fff8ed;
+  border: 1px solid rgba(184, 116, 0, 0.24);
+  border-radius: 999px;
+  color: #71510b;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 760;
+  gap: 7px;
+  min-height: 28px;
+  padding: 0 10px;
+}
+
+.status-pill.ok {
+  background: #effaf7;
+  border-color: rgba(0, 143, 122, 0.28);
+  color: #066757;
+}
+
 .sr-only {
   clip: rect(0, 0, 0, 0);
   border: 0;

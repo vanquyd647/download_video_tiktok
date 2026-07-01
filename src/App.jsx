@@ -317,6 +317,18 @@ export function App() {
               </span>
             </div>
 
+            <div className="server-status">
+              <StatusPill
+                ok={health?.youtubePotProvider?.available}
+                text={health?.youtubePotProvider?.available ? 'Auto PO token ready' : 'Auto PO token unavailable'}
+              />
+              <StatusPill
+                ok={health?.cookiesSource?.available}
+                text={health?.cookiesSource?.available ? 'Render cookies ready' : 'Render cookies missing'}
+              />
+              {health?.hostedRuntime && <StatusPill ok text="Hosted API" />}
+            </div>
+
             <h1 id="download-heading">Download an authorized video at source quality.</h1>
             <p className="lede">
               Paste a TikTok, Facebook, or YouTube link. LinkVault asks the platform extractor for the best
@@ -640,6 +652,15 @@ async function resolveFastDownload({ url, quality, cookiesBrowser, cookiesProfil
 
 function StatusDot({ ok }) {
   return <span className={ok ? 'status-dot ok' : 'status-dot'} />;
+}
+
+function StatusPill({ ok, text }) {
+  return (
+    <span className={ok ? 'status-pill ok' : 'status-pill'}>
+      <StatusDot ok={ok} />
+      {text}
+    </span>
+  );
 }
 
 function detectPlatform(value) {
