@@ -326,6 +326,10 @@ export function App() {
                 ok={health?.cookiesSource?.available}
                 text={health?.cookiesSource?.available ? 'Render cookies ready' : 'Render cookies missing'}
               />
+              <StatusPill
+                ok={health?.youtubeProxy?.configured}
+                text={health?.youtubeProxy?.configured ? 'YouTube proxy configured' : 'YouTube proxy missing'}
+              />
               {health?.hostedRuntime && <StatusPill ok text="Hosted API" />}
             </div>
 
