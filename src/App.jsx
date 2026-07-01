@@ -328,7 +328,13 @@ export function App() {
               />
               <StatusPill
                 ok={health?.youtubeProxy?.configured}
-                text={health?.youtubeProxy?.configured ? 'YouTube proxy configured' : 'YouTube proxy missing'}
+                text={
+                  health?.youtubeProxy?.configured
+                    ? 'YouTube proxy configured'
+                    : health?.youtubeProxy?.mode === 'placeholder'
+                      ? 'YouTube proxy invalid'
+                      : 'YouTube proxy missing'
+                }
               />
               {health?.hostedRuntime && <StatusPill ok text="Hosted API" />}
             </div>
