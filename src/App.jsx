@@ -15,6 +15,7 @@ import {
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8787';
 const API_IS_HOSTED = /^https?:\/\/[^/]*onrender\.com/i.test(API_BASE);
+const API_IS_NGROK = /^https?:\/\/[^/]*\.ngrok-free\.app/i.test(API_BASE);
 const sampleRows = [
   {
     id: 'seed-1',
@@ -100,7 +101,7 @@ export function App() {
   async function refreshHealth() {
     setHealthLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/api/health`);
+      const response = await apiFetch('/api/health');
       setHealth(await response.json());
     } catch {
       setHealth({
@@ -116,7 +117,7 @@ export function App() {
 
   async function fetchBrowserProfiles() {
     try {
-      const response = await fetch(`${API_BASE}/api/browser-profiles`);
+      const response = await apiFetch('/api/browser-profiles');
       const payload = await response.json();
       setBrowserProfiles(payload.profiles || {});
     } catch {
@@ -138,7 +139,7 @@ export function App() {
     setLoadingMeta(true);
 
     try {
-      const response = await fetch(`${API_BASE}/api/metadata`, {
+      const response = await apiFetch('/api/metadata', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -256,7 +257,7 @@ export function App() {
     setSendingFeedback(true);
 
     try {
-      const response = await fetch(`${API_BASE}/api/feedback`, {
+      const response = await apiFetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -647,7 +648,7 @@ function buildDownloadUrl({ url, quality, cookiesBrowser, cookiesProfile, title 
 }
 
 async function resolveFastDownload({ url, quality, cookiesBrowser, cookiesProfile, cookiesText, poToken, title }) {
-  const response = await fetch(`${API_BASE}/api/download-url`, {
+  const response = await apiFetch('/api/download-url', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url, quality, cookiesBrowser, cookiesProfile, cookiesText, poToken, title }),
@@ -658,6 +659,18 @@ async function resolveFastDownload({ url, quality, cookiesBrowser, cookiesProfil
     return payload;
   }
   return null;
+}
+
+function apiFetch(path, options = {}) {
+  const headers = new Headers(options.headers || {});
+  if (API_IS_NGROK) {
+    headers.set('ngrok-skip-browser-warning', 'true');
+  }
+
+  return fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers,
+  });
 }
 
 function StatusDot({ ok }) {
