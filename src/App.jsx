@@ -20,18 +20,18 @@ const sampleRows = [
   {
     id: 'seed-1',
     platform: 'TikTok',
-    title: 'Studio recipe draft',
+    title: 'Bản nháp công thức trong studio',
     status: 'ready',
     progress: 100,
-    meta: 'Browser download demo',
+    meta: 'Sẵn sàng trong thư mục Tải về',
   },
   {
     id: 'seed-2',
     platform: 'YouTube',
-    title: 'Channel tutorial clip',
+    title: 'Video hướng dẫn của kênh',
     status: 'idle',
     progress: 0,
-    meta: 'Waiting for link',
+    meta: 'Đang chờ liên kết mới',
   },
 ];
 
@@ -64,15 +64,15 @@ export function App() {
     if (downloadStage) return downloadStage;
     if (loadingMeta) {
       return {
-        title: 'Inspecting link',
-        detail: 'Reading video metadata and available formats',
+        title: 'Đang kiểm tra liên kết',
+        detail: 'Đọc thông tin video và các định dạng có thể tải',
         progress: 48,
       };
     }
     if (healthLoading) {
       return {
-        title: 'Checking engine',
-        detail: 'Confirming API and yt-dlp runtime are ready',
+        title: 'Đang kiểm tra máy tải',
+        detail: 'Xác nhận API và yt-dlp đã sẵn sàng',
         progress: 34,
       };
     }
@@ -107,7 +107,7 @@ export function App() {
       setHealth({
         ytDlp: {
           available: false,
-          message: 'API is offline. Start it with npm run dev:server.',
+          message: 'API chưa hoạt động. Hãy bật backend trước.',
         },
       });
     } finally {
@@ -172,14 +172,14 @@ export function App() {
     setNotice('');
     setStarting(true);
     const jobId = `${Date.now()}`;
-    const jobTitle = metadata?.title || 'Browser download';
+    const jobTitle = metadata?.title || 'Video tải xuống';
     const baseJob = {
       id: jobId,
       platform: platform || metadata?.platform || 'Video',
       title: jobTitle,
       status: 'running',
       progress: 18,
-      message: 'Preparing download request',
+      message: 'Đang chuẩn bị yêu cầu tải',
     };
     setJobs((current) => [baseJob, ...current]);
 
@@ -194,25 +194,25 @@ export function App() {
         title: metadata?.title,
       };
       setDownloadStage({
-        title: 'Preparing download',
-        detail: 'Resolving secure media URL through the backend',
+        title: 'Đang chuẩn bị tải',
+        detail: 'Backend đang lấy liên kết media an toàn',
         progress: 35,
       });
       updateJob(jobId, {
         progress: 35,
-        message: 'Resolving secure media URL',
+        message: 'Đang lấy liên kết media',
       });
       const fastDownload = await resolveFastDownload(request);
       setDownloadStage({
-        title: 'Opening download',
-        detail: 'Starting the browser download with protected media headers',
+        title: 'Đang mở tải xuống',
+        detail: 'Trình duyệt đang bắt đầu tải tệp',
         progress: 78,
       });
       updateJob(jobId, {
         progress: 78,
         message: fastDownload?.mode === 'direct-proxy'
-          ? 'Starting accelerated backend download'
-          : 'Starting fallback server stream',
+          ? 'Đang tải nhanh qua backend'
+          : 'Đang tải qua luồng dự phòng',
       });
       const downloadUrl = fastDownload?.url || buildDownloadUrl(request);
       const link = document.createElement('a');
@@ -226,8 +226,8 @@ export function App() {
         status: 'complete',
         progress: 100,
         message: fastDownload?.mode === 'direct-proxy'
-          ? 'Started accelerated backend download'
-          : 'Sent through fallback server stream',
+          ? 'Đã bắt đầu tải nhanh qua backend'
+          : 'Đã gửi qua luồng dự phòng',
       });
     } catch (error) {
       updateJob(jobId, {
@@ -249,7 +249,7 @@ export function App() {
     if (feedbackMessage.trim().length < 8) {
       setFeedbackStatus({
         type: 'error',
-        message: 'Describe the issue or improvement in a little more detail.',
+        message: 'Bạn mô tả thêm một chút để mình xử lý chính xác hơn nhé.',
       });
       return;
     }
@@ -274,7 +274,7 @@ export function App() {
       setFeedbackContact('');
       setFeedbackStatus({
         type: 'success',
-        message: 'Feedback sent. Thank you.',
+        message: 'Đã gửi góp ý. Cảm ơn bạn.',
       });
     } catch (error) {
       setFeedbackStatus({
@@ -298,56 +298,55 @@ export function App() {
             </div>
             <div>
               <span>LinkVault</span>
-              <small>Local social video saver</small>
+              <small>Trình lưu video cục bộ</small>
             </div>
           </div>
           <button className="ghost-button" disabled={healthLoading} onClick={refreshHealth} type="button">
             {healthLoading ? <Loader2 className="spin" size={16} /> : <RefreshCw size={16} />}
-            {healthLoading ? 'Checking...' : 'Check engine'}
+            {healthLoading ? 'Đang kiểm tra' : 'Kiểm tra máy tải'}
           </button>
         </header>
 
         <div className="grid">
           <section className="input-panel" aria-labelledby="download-heading">
             <div className="engine-strip">
-              <StatusDot ok={health?.ytDlp?.available} />
-              <span>
-                {health?.ytDlp?.available
-                  ? `yt-dlp ${health.ytDlp.version} ready`
-                  : health?.ytDlp?.message || 'Checking download engine...'}
+                <StatusDot ok={health?.ytDlp?.available} />
+                <span>
+                  {health?.ytDlp?.available
+                  ? `yt-dlp ${health.ytDlp.version} sẵn sàng`
+                  : health?.ytDlp?.message || 'Đang kiểm tra máy tải...'}
               </span>
             </div>
 
             <div className="server-status">
               <StatusPill
                 ok={health?.youtubePotProvider?.available}
-                text={health?.youtubePotProvider?.available ? 'Auto PO token ready' : 'Auto PO token unavailable'}
+                text={health?.youtubePotProvider?.available ? 'Tự lấy PO token' : 'Chưa có PO token tự động'}
               />
               <StatusPill
                 ok={health?.cookiesSource?.available}
-                text={health?.cookiesSource?.available ? 'Render cookies ready' : 'Render cookies missing'}
+                text={health?.cookiesSource?.available ? 'Cookie Render sẵn sàng' : 'Thiếu cookie Render'}
               />
               <StatusPill
                 ok={health?.youtubeProxy?.configured}
                 text={
                   health?.youtubeProxy?.configured
-                    ? 'YouTube proxy configured'
+                    ? 'Đã cấu hình proxy YouTube'
                     : health?.youtubeProxy?.mode === 'placeholder'
-                      ? 'YouTube proxy invalid'
-                      : 'YouTube proxy missing'
+                      ? 'Proxy YouTube chưa hợp lệ'
+                      : 'Chưa có proxy YouTube'
                 }
               />
-              {health?.hostedRuntime && <StatusPill ok text="Hosted API" />}
+              {health?.hostedRuntime && <StatusPill ok text="API đang chạy hosted" />}
             </div>
 
-            <h1 id="download-heading">Download an authorized video at source quality.</h1>
+            <h1 id="download-heading">Lưu video hợp lệ ở chất lượng gốc.</h1>
             <p className="lede">
-              Paste a TikTok, Facebook, or YouTube link. LinkVault asks the platform extractor for the best
-              available stream and prefers a clean source when one is exposed.
+              Dành cho liên kết TikTok, Facebook và YouTube mà bạn sở hữu hoặc được phép tải xuống.
             </p>
 
             <form className="url-form" onSubmit={fetchMetadata}>
-              <label htmlFor="video-url">Video link</label>
+              <label htmlFor="video-url">Dán liên kết video</label>
               <div className="url-box">
                 <Link2 size={18} />
                 <input
@@ -357,49 +356,50 @@ export function App() {
                   placeholder="https://www.youtube.com/watch?v=..."
                   autoComplete="off"
                 />
-                <span className={platform ? 'platform good' : 'platform'}>{platform || 'Detect'}</span>
+                <span className={platform ? 'platform good' : 'platform'}>{platform || 'Nhận diện'}</span>
               </div>
               <button className="primary-button" disabled={loadingMeta || !url} type="submit">
                 {loadingMeta ? <Loader2 className="spin" size={18} /> : <Gauge size={18} />}
-                {loadingMeta ? 'Inspecting link' : 'Inspect link'}
+                {loadingMeta ? 'Đang kiểm tra' : 'Kiểm tra liên kết'}
               </button>
             </form>
 
             {activity && <LoadingStatus activity={activity} />}
 
-            <div className="quality-group" aria-label="Download quality">
+            <div className="section-label">Chất lượng tải</div>
+            <div className="quality-group" aria-label="Chất lượng tải">
               <QualityOption
                 active={quality === 'best'}
-                title="Best source"
-                detail="Highest video and audio available"
+                title="Tốt nhất"
+                detail="Video và âm thanh cao nhất có thể"
                 onClick={() => setQuality('best')}
               />
               <QualityOption
                 active={quality === 'mp4'}
-                title="MP4 preferred"
-                detail="Best compatible MP4 output"
+                title="MP4 tương thích"
+                detail="Ưu tiên tệp MP4 dễ mở"
                 onClick={() => setQuality('mp4')}
               />
               <QualityOption
                 active={quality === 'clean'}
-                title="Clean source"
-                detail="No-watermark stream if exposed"
+                title="Nguồn sạch"
+                detail="Không watermark nếu nền tảng cung cấp"
                 onClick={() => setQuality('clean')}
               />
             </div>
 
             <div className="cookies-row">
               <span>
-                Browser cookies
+                Cookie trình duyệt
                 <small>
                   {browserCookiesAvailable
-                    ? 'Use only when the API runs on the same computer as your browser'
-                    : 'Unavailable on hosted Render API; paste YouTube cookies.txt below'}
+                    ? 'Chỉ dùng khi backend chạy cùng máy với trình duyệt'
+                    : 'Không khả dụng trên API hosted; hãy dán cookie YouTube bên dưới'}
                 </small>
               </span>
               <div className="cookies-controls">
                 <label htmlFor="cookies-browser" className="sr-only">
-                  Browser cookies
+                  Cookie trình duyệt
                 </label>
                 <select
                   id="cookies-browser"
@@ -407,7 +407,7 @@ export function App() {
                   disabled={!browserCookiesAvailable}
                   onChange={(event) => setCookiesBrowser(event.target.value)}
                 >
-                  <option value="none">Off</option>
+                  <option value="none">Tắt</option>
                   <option value="chrome">Chrome</option>
                   <option value="safari">Safari</option>
                   <option value="firefox">Firefox</option>
@@ -417,14 +417,14 @@ export function App() {
                 {cookiesBrowser !== 'none' && (browserProfiles[cookiesBrowser] || []).length > 0 && (
                   <>
                     <label htmlFor="cookies-profile" className="sr-only">
-                      Browser profile
+                      Hồ sơ trình duyệt
                     </label>
                     <select
                       id="cookies-profile"
                       value={cookiesProfile}
                       onChange={(event) => setCookiesProfile(event.target.value)}
                     >
-                      <option value="">All profiles</option>
+                      <option value="">Tất cả hồ sơ</option>
                       {(browserProfiles[cookiesBrowser] || []).map((profile) => (
                         <option key={profile} value={profile}>
                           {profile}
@@ -438,8 +438,8 @@ export function App() {
 
             <div className="cookies-text-box">
               <label htmlFor="cookies-text">
-                YouTube cookies.txt
-                <small>Paste exported Netscape cookies when Render gets blocked by YouTube</small>
+                Cookie YouTube
+                <small>Dán nội dung cookies.txt dạng Netscape khi YouTube chặn máy chủ</small>
               </label>
               <textarea
                 id="cookies-text"
@@ -452,8 +452,8 @@ export function App() {
                 value={cookiesText}
               />
               <label htmlFor="po-token">
-                YouTube PO token
-                <small>Optional fallback; backend tries automatic GVS tokens first</small>
+                Mã PO YouTube
+                <small>Tùy chọn dự phòng; backend sẽ thử lấy GVS token tự động trước</small>
               </label>
               <input
                 id="po-token"
@@ -461,7 +461,7 @@ export function App() {
                 autoComplete="off"
                 autoCorrect="off"
                 onChange={(event) => setPoToken(event.target.value)}
-                placeholder="Paste raw token or mweb.gvs+TOKEN"
+                placeholder="Dán token thô hoặc mweb.gvs+TOKEN"
                 spellCheck="false"
                 type="password"
                 value={poToken}
@@ -474,19 +474,19 @@ export function App() {
                 <div>
                   <span className="mini-label">{metadata.platform}</span>
                   <h2>{metadata.title}</h2>
-                  <p>
-                    {metadata.uploader} · {formatDuration(metadata.duration)} ·{' '}
-                    {metadata.formats?.length || 0} formats found
-                  </p>
+	                  <p>
+	                    {metadata.uploader} · {formatDuration(metadata.duration)} ·{' '}
+	                    {metadata.formats?.length || 0} định dạng
+	                  </p>
                   <button
                     className="primary-button compact"
                     disabled={starting}
                     onClick={startDownloadJob}
                     type="button"
                   >
-                    {starting ? <Loader2 className="spin" size={17} /> : <Download size={17} />}
-                    {starting ? 'Preparing download' : 'Save to computer'}
-                  </button>
+	                    {starting ? <Loader2 className="spin" size={17} /> : <Download size={17} />}
+	                    {starting ? 'Đang chuẩn bị' : 'Tải về máy'}
+	                  </button>
                 </div>
               </article>
             )}
@@ -500,80 +500,79 @@ export function App() {
 
             <div className="permission">
               <ShieldCheck size={18} />
-              <p>
-                Use the exact share URL for videos you created, own, or have permission to
-                download. The app does not remove or alter watermarks.
-              </p>
-            </div>
+	              <p>
+	                Chỉ tải video bạn tạo, sở hữu hoặc có quyền lưu. Ứng dụng không xóa hay chỉnh sửa watermark.
+	              </p>
+	            </div>
+	          </section>
 
-            <form className="feedback-box" onSubmit={submitFeedback}>
-              <div className="feedback-heading">
-                <MessageSquare size={18} />
-                <span>Feedback</span>
-              </div>
-              <div className="feedback-kind" aria-label="Feedback type">
-                <button
-                  className={feedbackKind === 'error' ? 'active' : ''}
-                  onClick={() => setFeedbackKind('error')}
-                  type="button"
-                >
-                  Error
-                </button>
-                <button
-                  className={feedbackKind === 'improvement' ? 'active' : ''}
-                  onClick={() => setFeedbackKind('improvement')}
-                  type="button"
-                >
-                  Improve
-                </button>
-              </div>
-              <label className="sr-only" htmlFor="feedback-message">
-                Feedback message
-              </label>
-              <textarea
-                id="feedback-message"
-                maxLength={3000}
-                onChange={(event) => setFeedbackMessage(event.target.value)}
-                placeholder="Tell us what went wrong or what should be improved..."
-                value={feedbackMessage}
-              />
-              <label className="sr-only" htmlFor="feedback-contact">
-                Contact info
-              </label>
-              <input
-                id="feedback-contact"
-                maxLength={160}
-                onChange={(event) => setFeedbackContact(event.target.value)}
-                placeholder="Your email or contact (optional)"
-                value={feedbackContact}
-              />
-              <button className="primary-button compact" disabled={sendingFeedback} type="submit">
-                {sendingFeedback ? <Loader2 className="spin" size={17} /> : <Send size={17} />}
-                {sendingFeedback ? 'Sending feedback' : 'Send feedback'}
-              </button>
-              {feedbackStatus && (
-                <div className={feedbackStatus.type === 'success' ? 'feedback-note success' : 'feedback-note'}>
-                  {feedbackStatus.message}
-                </div>
-              )}
-            </form>
-          </section>
+	          <section className="queue-panel" aria-labelledby="queue-heading">
+	            <div className="panel-heading">
+	              <div>
+	                <span className="mini-label">Cục bộ</span>
+	                <h2 id="queue-heading">Lượt tải gần đây</h2>
+	              </div>
+	              <span className="download-path">Thư mục Tải về</span>
+	            </div>
 
-          <section className="queue-panel" aria-labelledby="queue-heading">
-            <div className="panel-heading">
-              <div>
-                <span className="mini-label">Local</span>
-                <h2 id="queue-heading">Browser downloads</h2>
-              </div>
-              <span className="download-path">Your Downloads</span>
-            </div>
+	            <div className="queue-list">
+	              {visibleRows.map((job) => (
+	                <JobRow key={job.id} job={job} />
+	              ))}
+	            </div>
 
-            <div className="queue-list">
-              {visibleRows.map((job) => (
-                <JobRow key={job.id} job={job} />
-              ))}
-            </div>
-          </section>
+	            <form className="feedback-box" onSubmit={submitFeedback}>
+	              <div className="feedback-heading">
+	                <MessageSquare size={18} />
+	                <span>Góp ý</span>
+	              </div>
+	              <div className="feedback-kind" aria-label="Loại góp ý">
+	                <button
+	                  className={feedbackKind === 'error' ? 'active' : ''}
+	                  onClick={() => setFeedbackKind('error')}
+	                  type="button"
+	                >
+	                  Báo lỗi
+	                </button>
+	                <button
+	                  className={feedbackKind === 'improvement' ? 'active' : ''}
+	                  onClick={() => setFeedbackKind('improvement')}
+	                  type="button"
+	                >
+	                  Đề xuất
+	                </button>
+	              </div>
+	              <label className="sr-only" htmlFor="feedback-message">
+	                Nội dung góp ý
+	              </label>
+	              <textarea
+	                id="feedback-message"
+	                maxLength={3000}
+	                onChange={(event) => setFeedbackMessage(event.target.value)}
+	                placeholder="Mô tả lỗi hoặc điều bạn muốn cải thiện..."
+	                value={feedbackMessage}
+	              />
+	              <label className="sr-only" htmlFor="feedback-contact">
+	                Thông tin liên hệ
+	              </label>
+	              <input
+	                id="feedback-contact"
+	                maxLength={160}
+	                onChange={(event) => setFeedbackContact(event.target.value)}
+	                placeholder="Email hoặc liên hệ của bạn (không bắt buộc)"
+	                value={feedbackContact}
+	              />
+	              <button className="primary-button compact" disabled={sendingFeedback} type="submit">
+	                {sendingFeedback ? <Loader2 className="spin" size={17} /> : <Send size={17} />}
+	                {sendingFeedback ? 'Đang gửi' : 'Gửi góp ý'}
+	              </button>
+	              {feedbackStatus && (
+	                <div className={feedbackStatus.type === 'success' ? 'feedback-note success' : 'feedback-note'}>
+	                  {feedbackStatus.message}
+	                </div>
+	              )}
+	            </form>
+	          </section>
         </div>
       </section>
     </main>
@@ -624,10 +623,10 @@ function JobRow({ job }) {
       </div>
       <div className="job-main">
         <div className="job-title-line">
-          <strong>{job.fileName || job.title || `${job.platform || 'Video'} download`}</strong>
+          <strong>{job.fileName || job.title || `Tải ${job.platform || 'video'}`}</strong>
           <span>{job.platform}</span>
         </div>
-        <p>{job.message || job.meta || 'Ready'}</p>
+        <p>{job.message || job.meta || 'Sẵn sàng'}</p>
         <div className="progress-track">
           <span style={{ width: `${Math.max(0, Math.min(100, job.progress || 0))}%` }} />
         </div>
@@ -700,25 +699,25 @@ function detectPlatform(value) {
 
 function getUrlError(value) {
   if (!value || typeof value !== 'string') {
-    return 'Paste a TikTok, Facebook, or YouTube video link first.';
+    return 'Bạn hãy dán liên kết TikTok, Facebook hoặc YouTube trước.';
   }
 
   let parsed;
   try {
     parsed = new URL(value.trim());
   } catch {
-    return 'That does not look like a valid URL.';
+    return 'Liên kết này chưa đúng định dạng URL.';
   }
 
   if (!['http:', 'https:'].includes(parsed.protocol) || !detectPlatform(parsed.href)) {
-    return 'Only TikTok, Facebook, and YouTube video links are supported.';
+    return 'Hiện chỉ hỗ trợ liên kết TikTok, Facebook và YouTube.';
   }
 
   return '';
 }
 
 function formatDuration(seconds) {
-  if (!seconds) return 'duration unknown';
+  if (!seconds) return 'chưa rõ thời lượng';
   const minutes = Math.floor(seconds / 60);
   const remainder = Math.floor(seconds % 60);
   return `${minutes}:${String(remainder).padStart(2, '0')}`;
